@@ -139,3 +139,84 @@ Wald Estimator: 0.1249
 3.3
 
 The Wald estimate of 0.1249 implies that one additional year of education increases log wages by about 0.125, which corresponds to about a 12.5% increase in wages.
+
+4.1
+
+```{r}
+ols <- lm_robust(
+  lwage ~ educ + black + smsa + south + exper + expersq + married,
+  data = card,
+  se_type = "HC2")
+
+summary(ols)
+```
+
+The coefficient on education is 0.0715 which implies that one additional year of education is associated with about a 7.15% increase in wages, holding other factors in the regression constant.
+
+4.2
+
+```{r}
+iv <- iv_robust(
+  lwage ~ educ + black + smsa + south + exper + expersq + married |
+  nearc4 + black + smsa + south + exper + expersq + married,
+  data = card,
+  se_type = "HC2")
+
+summary(iv)
+
+coef(iv)["educ"]
+```
+
+The 2SLS coefficient on educ is 0.1249 with SE = 0.0491. This matches the Wald estimate computed earlier (0.1249). The equality is expected because the model has a single instrument so the number of known parameter is the same as the number of unknown parameter which means it is the special case where the 2SLS and Wald estimators coincide.
+
+4.3
+
+```{r}
+modelsummary(
+  list("OLS" = ols, "2SLS" = iv),
+  coef_map = c("educ" = "Years of Education"),
+  gof_map = data.frame(
+    raw = c("nobs", "r.squared"),
+    clean = c("N", "R²"),
+    fmt = c(0, 3)
+  )
+)
+```
+
+The OLS estimate of the return to education is 0.071, while the 2SLS estimate is 0.125. The IV estimate is significantly larger than the OLS estimate, suggesting that OLS may be biased downward, perhaps because of potential measurement error or heterogeneous returns to education. The 2SLS estimate is less precise since its SE range is larger.
+
+4.4
+
+```{r}
+ols_iq <- lm_robust(
+  lwage ~ educ + IQ + black + smsa + south + exper + expersq + married,
+  data = card,
+  se_type = "HC2")
+
+summary(ols_iq)
+coef(ols_iq)["educ"]
+
+iv_iq <- iv_robust(
+  lwage ~ educ + IQ + black + smsa + south + exper + expersq + married |
+  nearc4 + IQ + black + smsa + south + exper + expersq + married,
+  data = card,
+  se_type = "HC2"
+)
+
+summary(iv_iq)
+coef(iv_iq)["educ"]
+```
+
+**(a)** The 2SLS estimate is larger than the OLS estimate.
+
+**(b)** One reason OLS might underestimate the return to education is the measurement error in estimating years of schooling, which would bias the coefficient toward zero. Additionally, the IV estimate captures the effect for compliers (people whose education is influenced by their distance to a college) who may have higher marginal returns to education.
+
+**(c)** The 2SLS estimate is more credible as a causal estimate because it uses exogenous variation in education caused by proximity to a college. However, its validity still depends on the exclusion restriction holding true.
+
+4.5
+
+**(a)** Including IQ reduces the OLS coefficient on education from 0.0715 to 0.0676 which indicates that some of the OLS estimate reflects differences in ability.
+
+**(b)** The 2SLS estimate also decreases when IQ is included, from 0.1249 to 0.1094, but it is substantially larger than the OLS estimate.
+
+**(c)** This comparison suggests that ability bias explains some parts, but not all, of the difference between OLS and IV estimates. The remaining differences is likely due to measurement error in education or heterogeneous returns, rather than some other omitted variable by itself.
