@@ -57,3 +57,57 @@ The scatter plot shows a clear positive relationship between education and log w
 1.5
 
 Individuals with higher innate ability may both attain more education and earn higher wages which creates a positive correlation, regardless if education has any causal effect. Secondly, family background and/or socioeconomic status may influence both educational attainment and labor market outcomes which may lead to omitted variable bias in our OLS estimate.
+
+2.1
+
+```{r}
+mean(card$nearc4, na.rm = TRUE)
+```
+
+Based on our data result, around 68.2% of respondents in the sample grew up near a 4 year college.
+
+2.2
+
+```{r}
+first_stage <- lm_robust(educ ~ nearc4 + black + smsa + south +
+                           exper + expersq + married,
+                         data = card, se_type = "HC2")
+first_stage
+```
+
+The coefficient on nearc4 is 0.327 with a standard error of 0.081 and a t-statistic of 4.06. This means that individuals who grew up near a 4-year college obtain 0.327 more years of education on average, holding other variables in the regression constant. The positive sign is expected as being closer to a college reduces the cost of attending through access to local scholarships and increases access to higher education.
+
+2.3
+
+```{r}
+t_stat <- summary(first_stage)$coefficients["nearc4", "t value"]
+F_stat <- t_stat^2
+
+t_stat
+F_stat
+```
+
+The t-statistic on nearc4 is 4.06. Squaring this gives a first-stage F-statistic of 16.49. Since this exceeds the threshold of 10, the instrument appears to be strong. It is important to keep in mind the strength of our instrument because weak instruments lead to biased and imprecise 2SLS estimates which makes our inference of the result to be unreliable.
+
+2.4
+
+**(a)** The exclusion restriction requires that, conditional on education and other controls within the regression, proximity to a college (nearc4) has no direct effect on wages. More specifically, once education is controlled for, nearc4 must be uncorrelated with the error term in the wage equation.
+
+**(b)** One possible violation is that growing up near a college may be associated with living in more urban or economically developed areas. In which, those areas could offer better or more job opportunities and higher wages, independent of education attainment. In this case, nearc4 would affect wages through channels other than education which would violate the exclusion restriction.
+
+2.5
+
+```{r}
+library(dplyr)
+
+card %>%
+  group_by(nearc4) %>%
+  summarise(
+    mean_black = mean(black, na.rm = TRUE),
+    mean_smsa  = mean(smsa, na.rm = TRUE),
+    mean_south = mean(south, na.rm = TRUE),
+    n = n()
+  )
+```
+
+Based on the output, the groups are not balanced. Individuals who grew up near a college are much more likely to live in urban areas (higher smsa) and less likely to live in the South. There are also differences in racial composition. This imbalance suggests that nearc4 is not randomly assigned and is correlated with geographic and demographic factors that may independently affect wages. As a result, we should question the validity of the instrument which relies on controlling for these variables, and the exclusion restriction.
