@@ -111,3 +111,31 @@ card %>%
 ```
 
 Based on the output, the groups are not balanced. Individuals who grew up near a college are much more likely to live in urban areas (higher smsa) and less likely to live in the South. There are also differences in racial composition. This imbalance suggests that nearc4 is not randomly assigned and is correlated with geographic and demographic factors that may independently affect wages. As a result, we should question the validity of the instrument which relies on controlling for these variables, and the exclusion restriction.
+
+3.1
+
+```{r}
+reduced_form <- lm_robust(
+  lwage ~ nearc4 + black + smsa + south + exper + expersq + married,
+  data = card,
+  se_type = "HC2")
+
+summary(reduced_form)
+```
+
+The coefficient on nearc4 is 0.0409 with a SE = 0.0161 which indicates that individuals who grew up near a 4-year college earn around  4.1% higher wages on average, holding other factors in this regression constant. This suggests that proximity to a college is positively associated with wages even though this effect may occur both through increased education and other channels.
+
+3.2
+
+```{r}
+rf_coef <- coef(reduced_form)["nearc4"]
+fs_coef <- coef(first_stage)["nearc4"]
+
+rf_coef / fs_coef
+```
+
+Wald Estimator: 0.1249
+
+3.3
+
+The Wald estimate of 0.1249 implies that one additional year of education increases log wages by about 0.125, which corresponds to about a 12.5% increase in wages.
