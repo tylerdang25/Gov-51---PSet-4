@@ -5,4 +5,55 @@ format: pdf
 editor: visual
 ---
 
-## 
+## Setup
+
+```{r}
+library(tidyverse)
+library(estimatr)
+library(modelsummary)
+card <- read_csv("/Users/tyler/Downloads/card1995.csv")
+```
+
+1.2
+
+```{r}
+nrow(card)
+  
+```
+
+There are 3010 observations. Each unit refers to a respondent individual male.
+
+1.3
+
+```{r}
+library(ggplot2)
+
+ggplot(card, aes(x = educ,)) +
+  geom_histogram(binwidth = 1, boundary = 0, fill = "salmon") +
+  labs(title = "Distribution of Years of Education", 
+       x = "Years of Education",
+       y = "Count") +
+  theme_minimal()
+
+mean(card$educ, na.rm = TRUE)
+```
+
+The average level of education is \~13 years. The graph shows distinct spikes at 12 years mark and 16 years mark which are around the ages when people graduate from high school and college. Since these spikes occur because education are represented as discrete numbers, this causes respondents to cluster at graduation endpoints rather than being uniformly distributed.
+
+1.4
+
+```{r}
+ggplot(card, aes(x = educ, y = lwage)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Log Wages vs. Years of Education",
+       x = "Years of Education",
+       y = "Log Wage (lwage)") +
+  theme_minimal()
+```
+
+The scatter plot shows a clear positive relationship between education and log wages. The regression line slopes upward which shows that those with more years of education tend to earn higher wages. However, there is variation in wages at each level of education which suggests that there may be other omitted factors other than education that also play an important role in predicting earnings.
+
+1.5
+
+Individuals with higher innate ability may both attain more education and earn higher wages which creates a positive correlation, regardless if education has any causal effect. Secondly, family background and/or socioeconomic status may influence both educational attainment and labor market outcomes which may lead to omitted variable bias in our OLS estimate.
