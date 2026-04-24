@@ -220,3 +220,15 @@ coef(iv_iq)["educ"]
 **(b)** The 2SLS estimate also decreases when IQ is included, from 0.1249 to 0.1094, but it is substantially larger than the OLS estimate.
 
 **(c)** This comparison suggests that ability bias explains some parts, but not all, of the difference between OLS and IV estimates. The remaining differences is likely due to measurement error in education or heterogeneous returns, rather than some other omitted variable by itself.
+
+5.1
+
+Compliers are individuals whose educational attainment increases because they grew up near a 4-year college. These are people who would not have pursued additional education if a college were not nearby, but do so when access is easier. They are likely to be individuals on the cusp of attending college, whose proximity reduces the cost or difficulty of obtaining higher education.
+
+5.2
+
+The 2SLS estimate measures the causal effect of an additional year of education on wages for individuals whose schooling decisions are influenced by proximity to a 4-year college (compliers) by using the variation in education caused by whether the individual grew up near a college as the way to identify them.
+
+5.3
+
+Probably not since the 2SLS estimate is a LATE, so it applies to compliers (men whose education increased because they grew up near a 4-year college) not to the average person in the sample. Those compliers are likely to be people on the margin of attending college, meaning access and cost matter a lot for them. It is possible that they have higher returns than the average person, because individuals who live near a college might benefit more from education than those who don’t live near a college.
